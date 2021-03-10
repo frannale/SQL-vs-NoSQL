@@ -25,12 +25,9 @@ def makeModification(query):
         cursorInsatnce        = connection.cursor()    
 
         # SQL QUERY TIME
-        tic = time()
         sqlStatement  = query 
-        toc = time()
-        print(toc - tic)
-
         cursorInsatnce.execute(sqlStatement)
+
         cursorInsatnce.execute("COMMIT")
     except:
         raise 
@@ -43,23 +40,26 @@ def makeModification(query):
 # QUERY + FETCH ALL
 def makeQuery(query):
     
-    try:
-        connection = connectionDB()
-        cursorInsatnce  = connection.cursor() 
+    total = 0
+    for x in range(1):
+        try:
+            connection = connectionDB()
+            cursorInsatnce  = connection.cursor() 
+            
+            # SQL QUERY TIME   
+            tic = time()
+            cursorInsatnce.execute(query)
+            toc = time()
+            total += toc - tic
+            #RESULTADOS FUERA DEL TIEMPO 
+            databaseList = cursorInsatnce.fetchall()
 
-        # SQL QUERY TIME   
-        tic = time()
-        cursorInsatnce.execute(query)
-        toc = time()
-        print(toc - tic)
+        except:
+            raise 
 
-        #RESULTADOS FUERA DEL TIEMPO 
-        databaseList = cursorInsatnce.fetchall()
-
-    except:
-        raise 
-
-    finally:
-        connection.close()
+        finally:
+            connection.close()
     
+    print("SQL PROMEDIO: " + str(total / 20))
+
     return databaseList

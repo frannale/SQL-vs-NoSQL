@@ -25,7 +25,19 @@ def makeModification(data):
 # QUERY + FETCH ALL
 def makeQuery(filterBy = {}):
     try:
-         databaseList = connectionDB().find(filterBy)
+        tic = time()
+        databaseList = connectionDB().find(filterBy)
+        toc = time()
+        print("NoSQL: " + str(toc - tic))
+    except:
+        raise 
+
+    return databaseList
+
+# QUERY + FETCH ALL
+def truncate(filterBy = {}):
+    try:
+         databaseList = connectionDB().remove(filterBy)
     except:
         raise 
 
