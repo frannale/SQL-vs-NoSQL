@@ -24,13 +24,20 @@ def makeModification(data):
 
 # QUERY + FETCH ALL
 def makeQuery(filterBy = {}):
-    try:
-        tic = time()
-        databaseList = connectionDB().find(filterBy)
-        toc = time()
-        print("NoSQL: " + str(toc - tic))
-    except:
-        raise 
+
+    total = 0
+    for x in range(20):
+        try:            
+            # NOSQL QUERY TIME   
+            tic = time()
+            databaseList = connectionDB().find(filterBy).count()
+            toc = time()
+            total += toc - tic
+
+        except:
+            raise 
+    
+    print("NOSQL PROMEDIO: " + str(total / 20))
 
     return databaseList
 

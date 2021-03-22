@@ -14,10 +14,10 @@ def truncate_DBs():
     ok = MariaDB.makeModification(query)
     query = "DELETE FROM VACUNAS.PACIENTE"
     ok = MariaDB.makeModification(query)
-    query = "DELETE FROM VACUNAS.LABORATORIO"
-    ok = MariaDB.makeModification(query)
-    query = "DELETE FROM VACUNAS.CIUDAD"
-    ok = MariaDB.makeModification(query)
+    # query = "DELETE FROM VACUNAS.LABORATORIO"
+    # ok = MariaDB.makeModification(query)
+    # query = "DELETE FROM VACUNAS.CIUDAD"
+    # ok = MariaDB.makeModification(query)
 
     # NO SQL
     MongoDB.truncate()
@@ -84,7 +84,6 @@ def crear_vacuna_paciente():
     MariaDB.makeModification(query)
 
     proximo_paciente = MariaDB.makeQuery("SELECT MAX(ID) AS CANT FROM VACUNAS.PACIENTE;")[0]["CANT"]
-    print(proximo_paciente)
 
     # VACUNA
     query = "INSERT INTO VACUNAS.VACUNA(FECHAAPLICACION,OBSERVACIONES,IDPACIENTE,IDLABORATORIO,IDCIUDAD) VALUES("
@@ -107,25 +106,43 @@ def crear_vacuna_paciente():
     
     return ok
 
-def timedQuery():
-    # cursor = MongoDB.makeQuery()
-    # for document in cursor:
-    #     print('-----------')
-    #     print(document)
-    return True
-
 def case_1():
-    # Reportar las ciudades y cantidad pacientes vacunados por cada una.
+    # Reportar las ciudades con menos del 20% de su poblacion vacunada.
+    MariaDB.makeQuery("""   SELECT C.ID,C.NOMBRECIUDAD,COUNT(*) / C.CANTIDADHABITANTES 
+                            FROM VACUNAS.CIUDAD C
+                                INNER JOIN VACUNAS.VACUNA V ON (V.IDCIUDAD = C.ID)
+                            GROUP BY C.ID,C.NOMBRECIUDAD,C.CANTIDADHABITANTES
+                            HAVING 0.2  > COUNT(*) / C.CANTIDADHABITANTES;
+                        """)
+
+    MongoDB.makeQuery()
     return True
 
-for x in range(10000):
-    crear_vacuna_paciente()
+def case_2():
+    # Reportar la información de vacunas aplicadas en las últimas 2 semanas.
+    MariaDB.makeQuery("""   SELECT * from VACUNAS.VACUNA 
+                            WHERE OBSERVACIONES LIKE "%health%";
+                        """)
 
-# random_query = MariaDB.makeQuery("SELECT * FROM VACUNAS.VACUNA INNER JOIN VACUNAS.PACIENTE;")
-# laboratorio_random = MariaDB.makeQuery("SELECT * FROM VACUNAS.CIUDAD ORDER BY RAND() LIMIT 1;")[0]
-# print(laboratorio_random)
-# truncate_DBs()
-cursor = MongoDB.makeQuery()
-for document in cursor:
-    print('-----------')
-    print(document)
+    MongoDB.makeQuery({'observaciones':{'$regex':'health'}})
+    return True
+
+def case_3():
+    # Reportar la cantidad de pacientes mujeres vacunadas por cada laboratorio.
+    MariaDB.makeQuery("""   SELECT L.ID,L.NOMBRELABORATORIO,COUNT(*) 
+                            FROM VACUNAS.LABORATORIO L
+                                INNER JOIN VACUNAS.VACUNA V ON (V.IDLABORATORIO = L.ID)
+                                INNER JOIN VACUNAS.PACIENTE P ON (V.IDPACIENTE = P.ID)
+                            WHERE P.SEXO = 'M'
+                            GROUP BY L.ID,L.NOMBRELABORATORIO;
+
+                        """)
+
+    MongoDB.makeQuery()
+    return True
+
+for x in range(50000):
+    crear_vacuna_paciente()
+# case_2()
+print(MongoDB.makeQuery({'observaciones':{'$regex':'health'}}))
+

@@ -41,7 +41,7 @@ def makeModification(query):
 def makeQuery(query):
     
     total = 0
-    for x in range(1):
+    for x in range(20):
         try:
             connection = connectionDB()
             cursorInsatnce  = connection.cursor() 
