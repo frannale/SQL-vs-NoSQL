@@ -26,18 +26,37 @@ def makeModification(data):
 def makeQuery(filterBy = {}):
 
     total = 0
-    for x in range(20):
+    for x in range(30):
         try:            
             # NOSQL QUERY TIME   
             tic = time()
-            databaseList = connectionDB().find(filterBy).count()
+            databaseList = connectionDB().find(filterBy)
             toc = time()
             total += toc - tic
 
         except:
             raise 
     
-    print("NOSQL PROMEDIO: " + str(total / 20))
+    print("NOSQL PROMEDIO: " + str(total / 30))
+
+    return databaseList
+
+# QUERY + FETCH ALL
+def makeGroupQuery(filterBy = {}):
+
+    total = 0
+    for x in range(30):
+        try:            
+            # NOSQL QUERY TIME   
+            tic = time()
+            databaseList = connectionDB().aggregate(filterBy)
+            toc = time()
+            total += toc - tic
+
+        except:
+            raise 
+    
+    print("NOSQL PROMEDIO: " + str(total / 30))
 
     return databaseList
 

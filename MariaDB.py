@@ -41,7 +41,7 @@ def makeModification(query):
 def makeQuery(query):
     
     total = 0
-    for x in range(20):
+    for x in range(30):
         try:
             connection = connectionDB()
             cursorInsatnce  = connection.cursor() 
@@ -60,6 +60,6 @@ def makeQuery(query):
         finally:
             connection.close()
     
-    print("SQL PROMEDIO: " + str(total / 20))
+    print("SQL PROMEDIO: " + str(total / 30))
 
     return databaseList

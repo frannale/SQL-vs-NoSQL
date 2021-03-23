@@ -7,7 +7,7 @@ fake = Faker()
 
 def truncate_DBs():
  
-    # RESETEA TODAS LAS TABLAS
+    # RESETEA TODAS LAS BASES
 
     # SQL
     query = "DELETE FROM VACUNAS.VACUNA"
@@ -108,6 +108,7 @@ def crear_vacuna_paciente():
 
 def case_1():
     # Reportar las ciudades con menos del 20% de su poblacion vacunada.
+    print("CASO 1")
     MariaDB.makeQuery("""   SELECT C.ID,C.NOMBRECIUDAD,COUNT(*) / C.CANTIDADHABITANTES 
                             FROM VACUNAS.CIUDAD C
                                 INNER JOIN VACUNAS.VACUNA V ON (V.IDCIUDAD = C.ID)
@@ -119,6 +120,7 @@ def case_1():
     return True
 
 def case_2():
+    print("CASO 2")
     # Reportar la información de vacunas aplicadas en las últimas 2 semanas.
     MariaDB.makeQuery("""   SELECT * from VACUNAS.VACUNA 
                             WHERE OBSERVACIONES LIKE "%health%";
@@ -128,6 +130,7 @@ def case_2():
     return True
 
 def case_3():
+    print("CASO 3")
     # Reportar la cantidad de pacientes mujeres vacunadas por cada laboratorio.
     MariaDB.makeQuery("""   SELECT L.ID,L.NOMBRELABORATORIO,COUNT(*) 
                             FROM VACUNAS.LABORATORIO L
@@ -138,11 +141,37 @@ def case_3():
 
                         """)
 
-    MongoDB.makeQuery()
+    MongoDB.makeGroupQuery([
+        # Matchn the documents possible
+        { "$match": { "paciente.sexo": "M" } },
+
+        # Group the documents and "count" via $sum on the values
+        { "$group": {
+            "_id": {
+                "laboratorio_id": "$laboratorio.nombre"
+            },
+            "count": { "$sum": 1 }
+        }}
+    ])
     return True
 
-for x in range(50000):
-    crear_vacuna_paciente()
+# for x in range(50000):
+#     crear_vacuna_paciente()
+# case_1()
 # case_2()
-print(MongoDB.makeQuery({'observaciones':{'$regex':'health'}}))
+case_3()
 
+# result_cursor = MongoDB.makeGroupQuery([
+#     # Matchn the documents possible
+#     { "$match": { "paciente.sexo": "M" } },
+
+#     # Group the documents and "count" via $sum on the values
+#     { "$group": {
+#         "_id": {
+#             "laboratorio_id": "$laboratorio.nombre"
+#         },
+#         "count": { "$sum": 1 }
+#     }}
+# ])
+# for doc in result_cursor:
+#     print(doc)
